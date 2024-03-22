@@ -55,7 +55,6 @@ const effectsKeyboardAccessor = (effectCodes: string[]) => {
     keyboard.row();
   }
 
-  console.log(keyboard);
   return keyboard;
 };
 
@@ -109,7 +108,11 @@ const replyWithIntro = (ctx: any) =>
   });
 
 bot.command("hello", replyWithIntro);
-bot.on("message", replyWithIntro);
+// bot.on("message", replyWithIntro);
+bot.on("message", msg => {
+  console.log("msg=>", msg);
+  debugger
+});
 
 // Start the server
 if (process.env.NODE_ENV === "production") {
