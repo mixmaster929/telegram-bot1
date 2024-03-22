@@ -10,7 +10,7 @@ const bot = new Bot(process.env.TELEGRAM_TOKEN || "6350974456:AAE9tmLwr1KIDFGlmo
 
 type Variant = "c" | "w" | "t" | "a" | "r";
 // Handle the /yo command to greet the user
-bot.command("yo", (ctx) => ctx.reply(`Yo ${ctx.from?.username}`));
+bot.command("you", (ctx) => ctx.reply(`You ${ctx.from?.username}`));
 
 // Handle the /effect command to apply text effects using an inline keyboard
 type Effect = { code: Variant; label: string };
@@ -48,7 +48,7 @@ const effectsKeyboardAccessor = (effectCodes: string[]) => {
   const effects = effectsAccessor(effectCodes);
 
   const keyboard = new InlineKeyboard();
-  const chunkedEffects = chunk(effects, 3);
+  const chunkedEffects = chunk(effects, 1);
   for (const effectsChunk of chunkedEffects) {
     for (const effect of effectsChunk) {
       effect &&
