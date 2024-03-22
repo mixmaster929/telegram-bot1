@@ -73,6 +73,11 @@ bot.command("start", (ctx) =>
   })
 );
 
+bot.callbackQuery("effect-s",async (ctx) => {
+  await ctx.answerCallbackQuery({
+    text: "You were curious, indeed!"
+  });
+});
 // Return empty result list for other queries.
 bot.on("inline_query", (ctx) => ctx.answerInlineQuery([]));
 
