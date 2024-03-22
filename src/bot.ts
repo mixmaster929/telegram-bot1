@@ -1,4 +1,4 @@
-import { Bot, InlineKeyboard, webhookCallback } from "grammy";
+import { Bot, InlineKeyboard, webhookCallback, InlineQueryResultBuilder } from "grammy";
 import { chunk } from "lodash";
 import express from "express";
 
@@ -73,13 +73,44 @@ bot.command("start", (ctx) =>
   })
 );
 
-bot.callbackQuery("effect-s",async (ctx) => {
-  await ctx.answerCallbackQuery({
-    text: "You were curious, indeed!"
-  });
+// bot.callbackQuery("effect-s", async (ctx) => {
+//   await ctx.answerCallbackQuery({
+//     text: "You were curious, indeed!"
+//   });
+// });
+// Pass further options to the result.
+// const keyboard = new InlineKeyboard()
+//   .text("Aw yis", "call me back");
+// InlineQueryResultBuilder.article("id-3", "Hit me", { reply_markup: keyboard })
+//   .text("Push my buttons");
+
+bot.inlineQuery("effect-s", async (ctx) => {
+  // Create a single inline query result.
+  const result = InlineQueryResultBuilder
+    .article("id:grammy-website", "grammY", {
+      reply_markup: new InlineKeyboard()
+        .url("grammY website", "https://grammy.dev/"),
+    })
+    .text(
+      `<b>grammY</b> is the best way to create your own Telegram bots.
+They even have a pretty website! 👇`,
+      { parse_mode: "HTML" },
+    );
+
+  // Answer the inline query.
+  await ctx.answerInlineQuery(
+    [result], // answer with result list
+    { cache_time: 30 * 24 * 3600 }, // 30 days in seconds
+  );
 });
+
 // Return empty result list for other queries.
 bot.on("inline_query", (ctx) => ctx.answerInlineQuery([]));
+
+// bot.on("callback_query:data", async (ctx) => {
+//   console.log("Unknown button event with payload", ctx.callbackQuery.data);
+//   await ctx.answerCallbackQuery(); // remove loading animation
+// });
 
 // Handle text effects from the effect keyboard
 
