@@ -5,7 +5,7 @@ import express from "express";
 // Create a bot using the Telegram token
 const bot = new Bot(process.env.TELEGRAM_TOKEN || "6350974456:AAE9tmLwr1KIDFGlmo-li9pbv9QzmzMqL20");
 
-type Variant = "c" | "w" | "t" | "a" | "r";
+type Variant = "s" | "w" | "t" | "a" | "r";
 
 // Handle the /you command to greet the user
 bot.command("you", (ctx) => ctx.reply(`You ${ctx.from?.username}`));
@@ -14,8 +14,8 @@ bot.command("you", (ctx) => ctx.reply(`You ${ctx.from?.username}`));
 type Effect = { code: Variant; label: string };
 const allEffects: Effect[] = [
   {
-    code: "c",
-    label: "Config",
+    code: "s",
+    label: "Settings",
   },
   {
     code: "w",
@@ -55,6 +55,7 @@ const effectsKeyboardAccessor = (effectCodes: string[]) => {
     keyboard.row();
   }
 
+  console.log(keyboard);
   return keyboard;
 };
 
@@ -64,22 +65,6 @@ const textEffectResponseAccessor = (
 ) =>
   `Some Descriptions: ${originalText}` +
   (modifiedText ? `\nModified: ${modifiedText}` : "");
-
-const parseTextEffectResponse = (
-  response: string
-): {
-  originalText: string;
-  modifiedText?: string;
-} => {
-  const originalText = (response.match(/Some Descriptions: (.*)/) as any)[1];
-  const modifiedTextMatch = response.match(/Modified: (.*)/);
-
-  let modifiedText;
-  if (modifiedTextMatch) modifiedText = modifiedTextMatch[1];
-
-  if (!modifiedTextMatch) return { originalText };
-  else return { originalText, modifiedText };
-};
 
 bot.command("start", (ctx) =>
   ctx.reply(textEffectResponseAccessor(ctx.match), {
@@ -97,7 +82,7 @@ bot.on("inline_query", (ctx) => ctx.answerInlineQuery([]));
 // Handle the /about command
 const aboutUrlKeyboard = new InlineKeyboard().url(
   "Host your own bot for free.",
-  "https://cyclic.sh/"
+  "https://grammy.dev/"
 );
 
 // Suggest commands in the menu
@@ -123,7 +108,7 @@ const replyWithIntro = (ctx: any) =>
     parse_mode: "HTML",
   });
 
-bot.command("start", replyWithIntro);
+bot.command("hello", replyWithIntro);
 bot.on("message", replyWithIntro);
 
 // Start the server
