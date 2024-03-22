@@ -94,7 +94,7 @@ bot.inlineQuery("effect-s", async (ctx) => {
     .text(
       `<b>grammY</b> is the best way to create your own Telegram bots.
 They even have a pretty website! 👇`,
-      { parse_mode: "HTML" },
+      // { parse_mode: "HTML" },
     );
 
   // Answer the inline query.
