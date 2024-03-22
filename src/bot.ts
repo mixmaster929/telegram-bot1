@@ -1,18 +1,16 @@
 import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 import { chunk } from "lodash";
 import express from "express";
-// import { applyTextEffect, Variant } from "./textEffects";
-
-// import type { Variant as TextEffectVariant } from "./textEffects";
 
 // Create a bot using the Telegram token
 const bot = new Bot(process.env.TELEGRAM_TOKEN || "6350974456:AAE9tmLwr1KIDFGlmo-li9pbv9QzmzMqL20");
 
 type Variant = "c" | "w" | "t" | "a" | "r";
-// Handle the /yo command to greet the user
+
+// Handle the /you command to greet the user
 bot.command("you", (ctx) => ctx.reply(`You ${ctx.from?.username}`));
 
-// Handle the /effect command to apply text effects using an inline keyboard
+// Handle the /start command to open the control panel using an inline keyboard
 type Effect = { code: Variant; label: string };
 const allEffects: Effect[] = [
   {
@@ -64,7 +62,7 @@ const textEffectResponseAccessor = (
   originalText: string,
   modifiedText?: string
 ) =>
-  `Original: ${originalText}` +
+  `Some Descriptions: ${originalText}` +
   (modifiedText ? `\nModified: ${modifiedText}` : "");
 
 const parseTextEffectResponse = (
@@ -73,7 +71,7 @@ const parseTextEffectResponse = (
   originalText: string;
   modifiedText?: string;
 } => {
-  const originalText = (response.match(/Original: (.*)/) as any)[1];
+  const originalText = (response.match(/Some Descriptions: (.*)/) as any)[1];
   const modifiedTextMatch = response.match(/Modified: (.*)/);
 
   let modifiedText;
@@ -83,7 +81,7 @@ const parseTextEffectResponse = (
   else return { originalText, modifiedText };
 };
 
-bot.command("effect", (ctx) =>
+bot.command("start", (ctx) =>
   ctx.reply(textEffectResponseAccessor(ctx.match), {
     reply_markup: effectsKeyboardAccessor(
       allEffects.map((effect) => effect.code)
@@ -91,62 +89,10 @@ bot.command("effect", (ctx) =>
   })
 );
 
-// Handle inline queries
-const queryRegEx = /effect (monospace|bold|italic) (.*)/;
-// bot.inlineQuery(queryRegEx, async (ctx) => {
-//   const fullQuery = ctx.inlineQuery.query;
-//   const fullQueryMatch = fullQuery.match(queryRegEx);
-//   if (!fullQueryMatch) return;
-
-//   const effectLabel = fullQueryMatch[1];
-//   const originalText = fullQueryMatch[2];
-
-//   const effectCode = allEffects.find(
-//     (effect) => effect.label.toLowerCase() === effectLabel.toLowerCase()
-//   )?.code;
-//   const modifiedText = applyTextEffect(originalText, effectCode as Variant);
-
-//   await ctx.answerInlineQuery(
-//     [
-//       {
-//         type: "article",
-//         id: "text-effect",
-//         title: "Text Effects",
-//         input_message_content: {
-//           message_text: `Original: ${originalText}
-// Modified: ${modifiedText}`,
-//           parse_mode: "HTML",
-//         },
-//         reply_markup: new InlineKeyboard().switchInline("Share", fullQuery),
-//         url: "http://t.me/EludaDevSmarterBot",
-//         description: "Create stylish Unicode text, all within Telegram.",
-//       },
-//     ],
-//     { cache_time: 30 * 24 * 3600 } // one month in seconds
-//   );
-// });
-
 // Return empty result list for other queries.
 bot.on("inline_query", (ctx) => ctx.answerInlineQuery([]));
 
 // Handle text effects from the effect keyboard
-for (const effect of allEffects) {
-  const allEffectCodes = allEffects.map((effect) => effect.code);
-
-  bot.callbackQuery(effectCallbackCodeAccessor(effect.code), async (ctx) => {
-    const { originalText } = parseTextEffectResponse(ctx.msg?.text || "");
-    // const modifiedText = applyTextEffect(originalText, effect.code);
-
-    // await ctx.editMessageText(
-    //   textEffectResponseAccessor(originalText, modifiedText),
-    //   {
-    //     reply_markup: effectsKeyboardAccessor(
-    //       allEffectCodes.filter((code) => code !== effect.code)
-    //     ),
-    //   }
-    // );
-  });
-}
 
 // Handle the /about command
 const aboutUrlKeyboard = new InlineKeyboard().url(
@@ -156,10 +102,10 @@ const aboutUrlKeyboard = new InlineKeyboard().url(
 
 // Suggest commands in the menu
 bot.api.setMyCommands([
-  { command: "yo", description: "Be greeted by the bot" },
+  { command: "you", description: "Be greeted by the bot" },
   {
-    command: "effect",
-    description: "Apply text effects on the text. (usage: /effect [text])",
+    command: "start",
+    description: "Opens the control panel",
   },
 ]);
 
@@ -168,8 +114,8 @@ const introductionMessage = `Hello! I'm a Telegram bot.
 I'm powered by Cyclic, the next-generation serverless computing platform.
 
 <b>Commands</b>
-/yo - Be greeted by me
-/effect [text] - Show a keyboard to apply text effects to [text]`;
+/you - Be greeted by me
+/start - Opens the control panel`;
 
 const replyWithIntro = (ctx: any) =>
   ctx.reply(introductionMessage, {
