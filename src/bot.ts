@@ -1,46 +1,43 @@
 import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 import { chunk } from "lodash";
 import express from "express";
-import { applyTextEffect, Variant } from "./textEffects";
+// import { applyTextEffect, Variant } from "./textEffects";
 
-import type { Variant as TextEffectVariant } from "./textEffects";
+// import type { Variant as TextEffectVariant } from "./textEffects";
 
 // Create a bot using the Telegram token
 const bot = new Bot(process.env.TELEGRAM_TOKEN || "6350974456:AAE9tmLwr1KIDFGlmo-li9pbv9QzmzMqL20");
 
+type Variant = "c" | "w" | "t" | "a" | "r";
 // Handle the /yo command to greet the user
 bot.command("yo", (ctx) => ctx.reply(`Yo ${ctx.from?.username}`));
 
 // Handle the /effect command to apply text effects using an inline keyboard
-type Effect = { code: TextEffectVariant; label: string };
+type Effect = { code: Variant; label: string };
 const allEffects: Effect[] = [
   {
+    code: "c",
+    label: "Config",
+  },
+  {
     code: "w",
-    label: "Monospace",
+    label: "Wallets",
   },
   {
-    code: "b",
-    label: "Bold",
+    code: "t",
+    label: "Buy/Sell",
   },
   {
-    code: "i",
-    label: "Italic",
+    code: "a",
+    label: "Approve",
   },
   {
-    code: "d",
-    label: "Doublestruck",
-  },
-  {
-    code: "o",
-    label: "Circled",
-  },
-  {
-    code: "q",
-    label: "Squared",
+    code: "r",
+    label: "Refund",
   },
 ];
 
-const effectCallbackCodeAccessor = (effectCode: TextEffectVariant) =>
+const effectCallbackCodeAccessor = (effectCode: Variant) =>
   `effect-${effectCode}`;
 
 const effectsKeyboardAccessor = (effectCodes: string[]) => {
@@ -96,38 +93,38 @@ bot.command("effect", (ctx) =>
 
 // Handle inline queries
 const queryRegEx = /effect (monospace|bold|italic) (.*)/;
-bot.inlineQuery(queryRegEx, async (ctx) => {
-  const fullQuery = ctx.inlineQuery.query;
-  const fullQueryMatch = fullQuery.match(queryRegEx);
-  if (!fullQueryMatch) return;
+// bot.inlineQuery(queryRegEx, async (ctx) => {
+//   const fullQuery = ctx.inlineQuery.query;
+//   const fullQueryMatch = fullQuery.match(queryRegEx);
+//   if (!fullQueryMatch) return;
 
-  const effectLabel = fullQueryMatch[1];
-  const originalText = fullQueryMatch[2];
+//   const effectLabel = fullQueryMatch[1];
+//   const originalText = fullQueryMatch[2];
 
-  const effectCode = allEffects.find(
-    (effect) => effect.label.toLowerCase() === effectLabel.toLowerCase()
-  )?.code;
-  const modifiedText = applyTextEffect(originalText, effectCode as Variant);
+//   const effectCode = allEffects.find(
+//     (effect) => effect.label.toLowerCase() === effectLabel.toLowerCase()
+//   )?.code;
+//   const modifiedText = applyTextEffect(originalText, effectCode as Variant);
 
-  await ctx.answerInlineQuery(
-    [
-      {
-        type: "article",
-        id: "text-effect",
-        title: "Text Effects",
-        input_message_content: {
-          message_text: `Original: ${originalText}
-Modified: ${modifiedText}`,
-          parse_mode: "HTML",
-        },
-        reply_markup: new InlineKeyboard().switchInline("Share", fullQuery),
-        url: "http://t.me/EludaDevSmarterBot",
-        description: "Create stylish Unicode text, all within Telegram.",
-      },
-    ],
-    { cache_time: 30 * 24 * 3600 } // one month in seconds
-  );
-});
+//   await ctx.answerInlineQuery(
+//     [
+//       {
+//         type: "article",
+//         id: "text-effect",
+//         title: "Text Effects",
+//         input_message_content: {
+//           message_text: `Original: ${originalText}
+// Modified: ${modifiedText}`,
+//           parse_mode: "HTML",
+//         },
+//         reply_markup: new InlineKeyboard().switchInline("Share", fullQuery),
+//         url: "http://t.me/EludaDevSmarterBot",
+//         description: "Create stylish Unicode text, all within Telegram.",
+//       },
+//     ],
+//     { cache_time: 30 * 24 * 3600 } // one month in seconds
+//   );
+// });
 
 // Return empty result list for other queries.
 bot.on("inline_query", (ctx) => ctx.answerInlineQuery([]));
@@ -138,16 +135,16 @@ for (const effect of allEffects) {
 
   bot.callbackQuery(effectCallbackCodeAccessor(effect.code), async (ctx) => {
     const { originalText } = parseTextEffectResponse(ctx.msg?.text || "");
-    const modifiedText = applyTextEffect(originalText, effect.code);
+    // const modifiedText = applyTextEffect(originalText, effect.code);
 
-    await ctx.editMessageText(
-      textEffectResponseAccessor(originalText, modifiedText),
-      {
-        reply_markup: effectsKeyboardAccessor(
-          allEffectCodes.filter((code) => code !== effect.code)
-        ),
-      }
-    );
+    // await ctx.editMessageText(
+    //   textEffectResponseAccessor(originalText, modifiedText),
+    //   {
+    //     reply_markup: effectsKeyboardAccessor(
+    //       allEffectCodes.filter((code) => code !== effect.code)
+    //     ),
+    //   }
+    // );
   });
 }
 
